@@ -8,7 +8,7 @@ class Ui_CamControlPanelUI(object):
     def setupUi(self, CamControlPanelUI):
         if not CamControlPanelUI.objectName():
             CamControlPanelUI.setObjectName(u"CamControlPanelUI")
-        CamControlPanelUI.resize(258, 952)
+        CamControlPanelUI.resize(300, 952)
         CamControlPanelUI.setMaximumSize(PySide.QtCore.QSize(16777215, 16777215))
         self.verticalLayout = PySide.QtGui.QVBoxLayout(CamControlPanelUI)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -118,6 +118,12 @@ class Ui_CamControlPanelUI(object):
         self.RenameCamLocPushButton.setMaximumSize(PySide.QtCore.QSize(90, 16777215))
 
         self.horizontalLayout_9.addWidget(self.RenameCamLocPushButton)
+
+        self.UpdateCamLocPushButton = PySide.QtGui.QPushButton(CamControlPanelUI)
+        self.UpdateCamLocPushButton.setObjectName(u"UpdateCamLocPushButton")
+        self.UpdateCamLocPushButton.setMaximumSize(PySide.QtCore.QSize(80, 16777215))
+
+        self.horizontalLayout_9.addWidget(self.UpdateCamLocPushButton)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_9)
@@ -435,6 +441,7 @@ class Ui_CamControlPanelUI(object):
         self.InsCamLocPushButton.setText(PySide.QtCore.QCoreApplication.translate("CamControlPanelUI", u"Ins", None))
         self.DelCamLocPushButton.setText(PySide.QtCore.QCoreApplication.translate("CamControlPanelUI", u"Del", None))
         self.RenameCamLocPushButton.setText(PySide.QtCore.QCoreApplication.translate("CamControlPanelUI", u"Rename", None))
+        self.UpdateCamLocPushButton.setText(PySide.QtCore.QCoreApplication.translate("CamControlPanelUI", u"Update", None))
         self.label_10.setText(PySide.QtCore.QCoreApplication.translate("CamControlPanelUI", u"Type", None))
         self.label.setText(PySide.QtCore.QCoreApplication.translate("CamControlPanelUI", u"Position", None))
         self.label_15.setText(PySide.QtCore.QCoreApplication.translate("CamControlPanelUI", u"X", None))
@@ -1092,9 +1099,9 @@ class CamerasSerializationException(Exception):
 
 class CamerasSerializationGroupObjectWrongTypeIdException(CamerasSerializationException):
     """
-    expected resolution of this exception is to put up a message box
-    to inform the user and suggest manually deleting the exiting
-    obect with Name our designated "objectGroupName", maybe after first copying it
+    The Document Scene Graph contains an object with the name
+    we use to save camera locations, and it is not of the type
+    we use for saving
     """
     pass
 
@@ -1555,7 +1562,6 @@ class HelpDialog(PySide.QtGui.QDialog):
         textBrowser = PySide.QtGui.QTextBrowser()
         mainVertLayout.addWidget(textBrowser)
         textBrowser.setHtml(
-
         """
         <head>
            <title>CamControl</title>
@@ -1673,7 +1679,8 @@ class HelpDialog(PySide.QtGui.QDialog):
                     <dt>Saved</dt>
                     <dd>
                         In this section you can save the camera location using the "Ins" Button.  You
-                        can manage the list of saved camera locations using "Del" and "Rename".
+                        can manage the list of saved camera locations using "Del" and "Rename".  "Update" changes the selected camera location to the
+                        current location.
                         Select a previously saved location using the Combo-Box.  <b> Note:</b>  Camera locations
                         are added to the Document Scene Graph, and are not saved to disk until
                         the Document itself is saved;  CamControl will not save the Document, you must
@@ -1904,9 +1911,9 @@ class CamControlPanel(PySide.QtCore.QObject):
         self.setGUIDocCamFromCamState(self.camState)
 
     # CameraState.changed SIGNAL HANDLER
-    def onCamStateChanged_CamLocationsComboBox(self):
-        "When the camera state no longer matches saved state clear item"
-        withNoSignal(self.form.CamLocationsComboBox, lambda:self.form.CamLocationsComboBox.setCurrentIndex(-1))
+    # def onCamStateChanged_CamLocationsComboBox(self):
+    #     "When the camera state no longer matches saved state clear item"
+    #     withNoSignal(self.form.CamLocationsComboBox, lambda:self.form.CamLocationsComboBox.setCurrentIndex(-1))
 
     # CameraState.changed SIGNAL HANDLER
     def onCamStateChanged_MoveScrollBars(self):
@@ -2041,10 +2048,7 @@ class CamControlPanel(PySide.QtCore.QObject):
     def onInsCamLocPushButtonClicked(self):
         locName, ok = PySide.QtGui.QInputDialog.getText(self.form, 'Insert Camera Location', 'Location Name:')
         if ok:
-            # fixme - camera type
-            placement = self.camState.placement
-            camRec = CameraRecord(locName, locName, CameraState(placement, CameraType.Perspective))
-            # fixme try except
+            camRec = CameraRecord(locName, locName, self.camState.copy())
             try:
                 index = self.camsSerialization.saveCamRecord(camRec, True)
                 self.form.CamLocationsComboBox.blockSignals(True)
@@ -2063,17 +2067,17 @@ class CamControlPanel(PySide.QtCore.QObject):
             self.form.CamLocationsComboBox.setCurrentIndex(-1)
             self.form.CamLocationsComboBox.blockSignals(False)
 
-    # def onUpdateCamLocPushButtonClicked(self):
-    #     index = self.form.CamLocationsComboBox.currentIndex()
-    #     if index != -1:
-    #         try:
-    #             camRec = self.camsSerialization.camRecordList[index]
-    #             camRec.camState = self.camState.copy()
-    #             self.camsSerialization.saveCamRecord(camRec, False)
-    #         except CamerasSerializationGroupObjectWrongTypeIdException:
-    #             self.showCamControlObjectExistsErrorMessage()
-    #     else:
-    #         showErrorMessage('No camera record selected.  Use "Ins" to insert new record')
+    def onUpdateCamLocPushButtonClicked(self):
+        index = self.form.CamLocationsComboBox.currentIndex()
+        if index != -1:
+            try:
+                camRec = self.camsSerialization.camRecordList[index]
+                camRec.camState = self.camState.copy()
+                self.camsSerialization.saveCamRecord(camRec, False)
+            except CamerasSerializationGroupObjectWrongTypeIdException:
+                self.showCamControlObjectExistsErrorMessage()
+        else:
+            showErrorMessage('No camera record selected.  Use "Ins" to insert new record')
 
     def showCamControlObjectExistsErrorMessage(self):
         showErrorMessage("The Document Scene Graph already contains an object named 'CamControl', please copy to a new name and delete the existing 'CamControl' object")
@@ -2085,7 +2089,6 @@ class CamControlPanel(PySide.QtCore.QObject):
             locName, ok = PySide.QtGui.QInputDialog.getText(self.form, 'Rename Camera Location', 'Location Name:', text=camRec.label)
             if ok:
                 camRec.label = locName
-                # fixme try except
                 try:
                     newIndex = self.camsSerialization.saveCamRecord(camRec, False)
                     self.form.CamLocationsComboBox.blockSignals(True)
@@ -2096,13 +2099,13 @@ class CamControlPanel(PySide.QtCore.QObject):
                 except CamerasSerializationGroupObjectWrongTypeIdException:
                     self.showCamControlObjectExistsErrorMessage()
 
-    def onCamLocationsComboBoxCurrentIndexChanged(self):
+    def onCamLocationsComboBoxActivated(self):
         index = self.form.CamLocationsComboBox.currentIndex()
         if index != -1:
             camRec = self.camsSerialization.camRecordList[index]
-            self.camState.changed.disconnect(self.onCamStateChanged_CamLocationsComboBox)
+            # self.camState.changed.disconnect(self.onCamStateChanged_CamLocationsComboBox)
             self.camState.set(camRec.camState)
-            self.camState.changed.connect(self.onCamStateChanged_CamLocationsComboBox)
+            # self.camState.changed.connect(self.onCamStateChanged_CamLocationsComboBox)
 
     # *******************************************************
     # **  Game Control  *************************************
@@ -2258,10 +2261,11 @@ class CamControlPanel(PySide.QtCore.QObject):
             self.form.CamLocationsComboBox.addItem(camRec.label)
 
         self.form.CamLocationsComboBox.setCurrentIndex(-1)
-        self.form.CamLocationsComboBox.currentIndexChanged.connect(self.onCamLocationsComboBoxCurrentIndexChanged)
+        self.form.CamLocationsComboBox.activated.connect(self.onCamLocationsComboBoxActivated)
+        # self.form.CamLocationsComboBox.currentIndexChanged.connect(self.onCamLocationsComboBoxCurrentIndexChanged)
         self.form.InsCamLocPushButton.clicked.connect( self.onInsCamLocPushButtonClicked)
         self.form.DelCamLocPushButton.clicked.connect( self.onDelCamLocPushButtonClicked)
-        # self.form.UpdateCamLocPushButton.clicked.connect( self.onUpdateCamLocPushButtonClicked)
+        self.form.UpdateCamLocPushButton.clicked.connect( self.onUpdateCamLocPushButtonClicked)
         self.form.RenameCamLocPushButton.clicked.connect( self.onRenameCamLocPushButtonClicked)
 
         for camType in CameraType:
@@ -2293,7 +2297,7 @@ class CamControlPanel(PySide.QtCore.QObject):
         self.moveScrollBarScale.valueChanged.connect(self.onMoveScaleValueChanged)
 
         self.camState.changed.connect(self.onCamStateChanged)
-        self.camState.changed.connect(self.onCamStateChanged_CamLocationsComboBox)
+        # self.camState.changed.connect(self.onCamStateChanged_CamLocationsComboBox)
         self.camState.changed.connect(self.onCamStateChanged_MoveScrollBars)
         self.camState.positionChanged.connect(self.onCamStatePosChanged)
         self.camState.orientationChanged.connect(self.onCamStateOrientationChanged_PtAt_Up)
