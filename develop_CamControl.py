@@ -7,6 +7,10 @@
 # version 0.10
 # June 2020
 #
+# SOURCE REPO: https://github.com/k0nichiwa/FreeCAD_CamControl
+# VIDEO DEMO: https://www.bitchute.com/video/gWMVmOAi1KR7/
+# LICENSE:  This software package and portions of it can be freely modified, included in other software, and distributed
+#
 # See 'Help" string in UI or below in this file for description
 #
 # Note this is the version that should be used
@@ -1031,7 +1035,7 @@ class HelpDialog(PySide.QtGui.QDialog):
                 <li>Video-game like control of camera position and orientation</li>
                 <li>Save a list of camera locations for each document</li>
                 <li>Task Panel control of camera position and orientation</li>
-                <li>Allow user to control key and mouse bindings during Game Control of camera</li>
+                <li>Customize key and mouse bindings during Game Control of camera</li>
             </ul>
             </font>
             <h2>Game Control</h2>
@@ -1158,8 +1162,14 @@ class HelpDialog(PySide.QtGui.QDialog):
             <h2>Miscellaneous</h2>
                 <font size=4>
                     <ul>
-                        <li>Source code available at: </li>
-                        <li>A video demo can be found at: </li>
+                        <li>
+                            <dl>
+                                <dt>LICENSE</dt>
+                                <dd>This software package and portions of it can be freely modified, included in other software, and distributed</dd>
+                            </dl>
+                        </li>
+                        <li>Source code available at: https://github.com/k0nichiwa/FreeCAD_CamControl</li>
+                        <li>A video demo can be found at: https://www.bitchute.com/video/gWMVmOAi1KR7/</li>
                         <li>
                             Depending on the OS, etc., not all keys or mouse buttons can be bound.
                         </li>
