@@ -4,8 +4,10 @@ Video-game like control of camera position and orientation <br/>
 Save a list of camera locations for each document<br/>
 Task Panel control of camera position and orientation<br/>
 Customize key and mouse bindings during Game Control of camera<br/>
+<br/>
+Video:<br/>
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.bitchute.com/video/gWMVmOAi1KR7/)
+[![IMAGE ALT TEXT HERE](https://raw.githubusercontent.com/k0nichiwa/FreeCAD_CamControl/master/CamControlOverview.png)](https://www.bitchute.com/video/gWMVmOAi1KR7/)
 
 ### Prerequisites
 
