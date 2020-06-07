@@ -1865,12 +1865,12 @@ class CamControlPanel(PySide.QtCore.QObject):
                 if vDelta_Length > 1.0E-3:
                     mouseRot = makeRotationAxisAngle(0,1,0, -vDelta.x * self.settings.MOUSE_SENSITIVITY)
 
-                    mouseRot2 = makeRotationAxisAngle(1,0,0, vDelta.y * ( 1.0 if self.settings.INVERT_MOUSE_Y else -1.0 ) * self.settings.MOUSE_SENSITIVITY)
-                    # try opposite order -- keep, seems more natural
-                    rot = mouseRot2.multiply(mouseRot)
-
+                    # try opposite order 
                     # mouseRot2 = makeRotationAxisAngle(1,0,0, vDelta.y * ( 1.0 if self.settings.INVERT_MOUSE_Y else -1.0 ) * self.settings.MOUSE_SENSITIVITY)
-                    # rot = mouseRot.multiply(mouseRot2)
+                    # rot = mouseRot2.multiply(mouseRot)
+
+                    mouseRot2 = makeRotationAxisAngle(1,0,0, vDelta.y * ( 1.0 if self.settings.INVERT_MOUSE_Y else -1.0 ) * self.settings.MOUSE_SENSITIVITY)
+                    rot = mouseRot.multiply(mouseRot2)
 
                     rot = self.gameControlLastCamRotation.multiply(rot)
                     self.camState.setRotation(rot)
