@@ -601,7 +601,9 @@ class Ui_StartGameControlDialogUI(object):
 
 import PySide
 
+Has_Form_CamControlPanel = False
 if  'Ui_CamControlPanelUI' in dir():
+    Has_Form_CamControlPanel = True
     exec(
 """
 class Form_CamControlPanel(PySide.QtGui.QDialog, Ui_CamControlPanelUI):
@@ -609,7 +611,9 @@ class Form_CamControlPanel(PySide.QtGui.QDialog, Ui_CamControlPanelUI):
 """
     )
     
+Has_Form_StartGameControlDialog = False
 if 'Ui_StartGameControlDialogUI' in dir():
+    Has_Form_StartGameControlDialog = True
     exec(
 """    
 class Form_StartGameControlDialog(PySide.QtGui.QDialog, Ui_StartGameControlDialogUI):
@@ -634,9 +638,9 @@ MOUSE_SENSITIVITY_SLIDER_LOGICAL_MIN = MOUSE_SENSITIVITY_MIN
 MOUSE_SENSITIVITY_SLIDER_LOGICAL_MAX = MOUSE_SENSITIVITY_MAX
 
 
-camdialog_ui_path = u"/Users/songsecure/OtherProjects/freecad/CamControl/CamControlPanelUI.ui"
+camdialog_ui_path = u"/Users/songsecure/OtherProjects/freecad/CamControl\ Macro\ Project/CamControl/CamControlPanelUI.ui"
 
-countdowndialog_ui_path = u"/Users/songsecure/OtherProjects/freecad/CamControl/StartGameControlDialogUI.ui"
+start_game_control_dialog_ui_path = u"/Users/songsecure/OtherProjects/freecad/CamControl\ Macro\ Project/CamControl/StartGameControlDialogUI.ui"
 
 def centeredDialogRectInWindowForScreen(width, height, windowRect, screenRect):
     """
@@ -1303,11 +1307,11 @@ class StartGameControlDialog(PySide.QtGui.QDialog):
         super().__init__()
         self.inputToExit = inputToExit
 
-        if 'Form_StartGameControlDialog' in dir():
+        if Has_Form_StartGameControlDialog:
             self.form = Form_StartGameControlDialog()
             self.form.setupUi(self.form)
         else:
-            self.form = FreeCADGui.PySideUic.loadUi(countdowndialog_ui_path)
+            self.form = FreeCADGui.PySideUic.loadUi(start_game_control_dialog_ui_path)
         self.initUI()
 
     # private
@@ -1759,7 +1763,6 @@ class HelpDialog(PySide.QtGui.QDialog):
 
 class CamControlPanel(PySide.QtCore.QObject):
 
-    GAME_CONTROL_DELAY_MS = 3000
     # try for 50 FPS and track actual time between them
     # to try to make smooth motion
     GAME_CONTROL_MOVE_UPDATE_MS = 20
@@ -1831,7 +1834,7 @@ class CamControlPanel(PySide.QtCore.QObject):
         self.moveScrollBarInitialPosition = p.Base
         self.moveScrollBarScale = GameControlMoveScale(0,1) # 1 mm
 
-        if  'Form_CamControlPanel' in dir():
+        if  Has_Form_CamControlPanel:
             self.form = Form_CamControlPanel()
             self.form.setupUi(self.form)
         else:
